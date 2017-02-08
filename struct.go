@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"time"
 	"unicode"
+	logger "github.com/alecthomas/log4go"
 )
 
 // Request type
@@ -297,12 +298,27 @@ func UnmarshalDict(t Dict, v interface{}) error {
 	vv = reflect.Indirect(vv)
 	for i := range keys {
 		val := vals[i].Data
-		fv := vv.FieldByName(titleInitial(keys[i]))
+		title := titleInitial(keys[i])
+		fv := vv.FieldByName(title)
 		if !fv.IsValid() {
 			continue
 		}
-		if fv.CanSet() && reflect.TypeOf(val).AssignableTo(fv.Type()) {
-			fv.Set(reflect.ValueOf(val))
+		canset :=  fv.CanSet()
+		type_of_value := reflect.TypeOf(val)
+		field_type := fv.Type()
+		assignable := type_of_value.AssignableTo(field_type)
+		if canset {
+			if assignable {
+				fv.Set(reflect.ValueOf(val))
+			} else {
+				logger.Debug("can not assignable, type_of_value: %v, field_type: %v", type_of_value, field_type)
+				if type_of_value.ConvertibleTo(field_type) {
+					logger.Debug("can convertibleTo, type_of_value: %v, field_type: %v", type_of_value, field_type)
+					converted := reflect.ValueOf(val).Convert(field_type)
+					fv.Set(converted)
+					logger.Debug("set converted, converted: %v", converted)
+				}
+			}
 		}
 	}
 	return nil
