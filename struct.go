@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"time"
 	"unicode"
-	logger "github.com/alecthomas/log4go"
+	//logger "github.com/alecthomas/log4go"
 )
 
 // Request type
@@ -311,12 +311,12 @@ func UnmarshalDict(t Dict, v interface{}) error {
 			if assignable {
 				fv.Set(reflect.ValueOf(val))
 			} else {
-				logger.Debug("can not assignable, type_of_value: %v, field_type: %v", type_of_value, field_type)
+				//logger.Trace("can not assignable, type_of_value: %v, field_type: %v", type_of_value, field_type)
 				if type_of_value.ConvertibleTo(field_type) {
-					logger.Debug("can convertibleTo, type_of_value: %v, field_type: %v", type_of_value, field_type)
+					//logger.Trace("can convertibleTo, type_of_value: %v, field_type: %v", type_of_value, field_type)
 					converted := reflect.ValueOf(val).Convert(field_type)
 					fv.Set(converted)
-					logger.Debug("set converted, converted: %v", converted)
+					//logger.Trace("set converted, converted: %v", converted)
 				}
 			}
 		}
